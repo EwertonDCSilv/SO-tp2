@@ -18,6 +18,7 @@ class Memory{
         Memory( std::string repositionMethod, int sizepage, int sizeMemory);
         //~Memory();    
 
+        int calcShift();
         bool isFree();
         void rewrite(std::string data, int time);
         bool write(std::string data, int time);

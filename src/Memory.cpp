@@ -10,11 +10,25 @@ Memory::Memory( std::string repositionMethod, int sizepage, int sizeMemory){
     this->repositionMethod = repositionMethod;
 
     // ToDo criar metodo para calcular shift
-    this->shift = 0;
+    this->shift = this->calcShift();
+}
+
+int Memory::calcShift(){
+    // ToDo criar metodo para calcular shift
+    unsigned shift = 0; 
+    unsigned temp = 0;
+    
+    temp = this->numberPages * 1024;
+    while (temp>1) {
+        temp = temp>>1;
+        shift++;
+    }
+
+    return shift;
 }
 
 bool Memory::isFree(){
-    return this->numberPages < this->buffer.getComprimento();
+    return this->buffer.getComprimento() < this->numberPages;
 }
 
 void Memory::rewrite(std::string data, int time){
@@ -23,7 +37,7 @@ void Memory::rewrite(std::string data, int time){
         this->buffer.insert(data, this->shift, time, 0);
     }
     else if(this->repositionMethod == "fifo"){
-        this->buffer.pop();
+        this->buffer.fifo();
         this->buffer.insert(data, this->shift, time, 0);
     }
     else if(this->repositionMethod == "random"){

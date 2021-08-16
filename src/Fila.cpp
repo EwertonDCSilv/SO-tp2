@@ -200,6 +200,11 @@ void Fila::lru(){
     // ToDo implementar metodo LRU
     //this->pop();
 }
+
+void Fila::fifo(){
+    // ToDo implementar metodo LRU
+    //this->pop();
+}
 void Fila::random(){
     // ToDo implementar metodo Random
     /*

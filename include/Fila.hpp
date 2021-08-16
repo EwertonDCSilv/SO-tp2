@@ -32,6 +32,7 @@ class Fila{
 
         // ToDo: Coment
         void lru();
+        void fifo();
         void random();
         bool find(long int address, int time);
         

@@ -1,6 +1,6 @@
 import os
 
-arquivos = ['']
+"""arquivos = ['']
 algoritimos = ['FIFO', 'LRU', 'RANDOM']
 
 pagina = 4
@@ -12,4 +12,4 @@ mimPagina = 2
 maxPagina = 64
 
 os.system('')
-....
+...."""
