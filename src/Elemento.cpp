@@ -1,17 +1,31 @@
 #include "Elemento.hpp"
 
-/*
- *  @method {Funcao construtora do tipo Elemento}
- *  @param {std::string data - Dado do Elemento} 
- *  @return {void}
-*/
-Elemento::Elemento(std::string data, int shift, int time){
+Elemento::Elemento(long int data, int shift, int time){
     this->data = data;
-    this->address = std::stol(data, nullptr, 16) >> shift;
-    this->time = time;
-    this->next = NULL;
+    this->address = data >> shift;
+    this->time = 0;
 }
 
 void Elemento::setTime(int time){
     this->time = time;
+}
+
+void Elemento::setData(long data){
+    this->data = data;
+}
+
+void Elemento::setAddress(long address){
+    this->address = address;
+}
+
+int Elemento::getTime(){
+    return this->time;
+}
+
+long int Elemento::getData(){
+    return this->data;
+}
+
+long int Elemento::getAddress(){
+    return this->address;
 }

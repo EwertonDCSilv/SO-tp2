@@ -3,15 +3,25 @@
 #ifndef ELEMENTO_H
 #define ELEMENTO_H
 
-struct Elemento{
-    std::string data;
-    int address;
-    int time;
-    Elemento* next;
-
-    // Contrutor
-    Elemento(std::string data, int shift, int time);
-    void setTime(int time);
+class Elemento{
+    private:
+        long int data;
+        int address;
+        int time;
+    
+    public:
+        // Contrutor
+        Elemento(long int data, int shift, int time);
+        
+        // Set
+        void setTime(int time);
+        void setData(long data);
+        void setAddress(long address); 
+        
+        // Get
+        int getTime();
+        long int getData();
+        long int getAddress();
 };
 
 #endif
