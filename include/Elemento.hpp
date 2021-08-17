@@ -1,17 +1,27 @@
+#include <iostream>
 #include <string>
 
 #ifndef ELEMENTO_H
 #define ELEMENTO_H
 
 struct Elemento{
-    std::string data;
-    int address;
+    long int data;
+    long int addres;
     int time;
-    Elemento* next;
+    int debug;
+    int lastAccess;
 
     // Contrutor
-    Elemento(std::string data, int shift, int time);
+    Elemento(long int data, long int shift, int time, int debug);
     void setTime(int time);
-};
+    void setLastAccess(int lastAccess);
+    void setData(long int data);
+    void setAddres(long int addres);
 
+    int getTime();
+    int getLastAccess();
+    long int getData();
+    long int getAddres();
+    void debuging();
+};
 #endif
