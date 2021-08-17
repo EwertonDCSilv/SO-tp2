@@ -21,7 +21,6 @@ int main(int argc, char** argv){
 
     // Talvez ...
     int fault = 0;
-    int writebacks = 0;
     int hits = 0;
     int misses = 0;
 
@@ -52,21 +51,37 @@ int main(int argc, char** argv){
     // Define number pages
     Memory memory = Memory(repositionMethod, sizepage, sizeMemory, debug);
 
-    // Creating a array for params in text file line
-    params = new std::string[2];
-
     // Reading lines of text file
     while (std::getline(fin, line)){
         if(line.size()){
 
+            // Creating a array for params in text file line
+            params = new std::string[2];
+
             // Processando parametros de entradas
             spliText(line," ",params);
+            
+            // Converting data to int
+            data = std::stol(params[0], nullptr, 16);
 
+            // Case debug 
+            if(debug == 1){
+                std::cout << "DEBUG MAIN: Line        " << line << "...|" << std::endl;
+                std::cout << "DEBUG MAIN: params[0]   " << params[0] << "...|" << std::endl;
+                std::cout << "DEBUG MAIN: params[1]   " << params[1] << "...|" << std::endl;
+                std::cout << "DEBUG MAIN: data        " << data << "...|" << std::endl;
+                std::cout << "************************************* ...|" << std::endl << std::endl;
+            }
+                
             // Check is read ou write command
             if(params[1] == "R" || params[1] == "r"){
-
-                data = std::stol(params[0], nullptr, 16);
                 
+                // Case debug 
+                if(debug == 1){
+                    std::cout << "DEBUG MAIN: read operation            ..." << std::endl;
+                    std::cout << "************************************* ..." << std::endl << std::endl;
+                }
+
                 // Case hit
                 if(memory.read(data, time) == true){
                     hits++;
@@ -74,31 +89,37 @@ int main(int argc, char** argv){
                 
                 // Case misses
                 else{
+                    // Case pagefault
                     if(memory.write(data, time) == false){
                         fault++;
-                        writebacks++;
                     }
-                    misses++;
+                        
                 }
-                readPages++;    
+                readPages++; 
             }
             else if (params[1] == "W" || params[1] == "w"){
+
+                // Case debug 
+                if(debug == 1){
+                    std::cout << "DEBUG MAIN: write operation            ..." << std::endl;
+                    std::cout << "************************************* ..." << std::endl << std::endl;
+                }
 
                 // Case pagefault
                 if(memory.write(data, time) == false){
                     fault++;
-                    writebacks++;
                 }
-                writePages++;            
+                writePages++;      
             }
             
             // Incremente time
             time++;
+            
+            // Delete array temp of params
+            delete [] params;
         }  
     }  
 
-    // Delete array temp of params
-    delete [] params;
 
     // Close text file
     fin.close();
@@ -115,7 +136,7 @@ int main(int argc, char** argv){
     std::cout << "Hits: " << hits << std::endl;
     std::cout << "Misses: " << misses << std::endl;
     std::cout << "Fault: " << fault << std::endl;
-    std::cout << "Writebacks: " << writebacks << std::endl;
+    std::cout << "Time: " << time << std::endl;
 
     return 0;
 }

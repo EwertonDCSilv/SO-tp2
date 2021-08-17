@@ -11,6 +11,7 @@ SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 
 CFLAGS := -g -Wall -O3 -std=c++11
+#CFLAGS := -g -O3 -std=c++11
 INC := -I include/
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)

@@ -18,18 +18,19 @@ Memory::Memory( std::string repositionMethod, int sizepage, int sizeMemory, int 
 
     // Creating a vector of elements
     for(int i =0; i < this->numberPages; i ++){
-        this->buffer.push_back(Elemento(-1, this->shift,-1, this->debug));
+        this->buffer.push_back( new Elemento(-1, this->shift,-1, this->debug));
     }
 
     // Case debug 
     if(this->debug == 1){
-        std::cout << "DEBUG MEMORY: sizepage         " << this->sizepage << "..." << std::endl;
-        std::cout << "DEBUG MEMORY: sizeMemory       " << this->sizeMemory << "..." << std::endl;
-        std::cout << "DEBUG MEMORY: numberPages      " << this->numberPages << "..." << std::endl;
-        std::cout << "DEBUG MEMORY: repositionMethod " << this->repositionMethod << "..." << std::endl;
-        std::cout << "DEBUG MEMORY: length           " << this->length << "..." << std::endl;
-        std::cout << "DEBUG MEMORY: shift            " << this->shift << "..." << std::endl;
-        std::cout << "DEBUG MEMORY: debug            " << this->debug << "..." << std::endl;
+        std::cout << "DEBUG MEMORY CONSTRUCT: sizepage         " << this->sizepage << "..." << std::endl;
+        std::cout << "DEBUG MEMORY CONSTRUCT: sizeMemory       " << this->sizeMemory << "..." << std::endl;
+        std::cout << "DEBUG MEMORY CONSTRUCT: numberPages      " << this->numberPages << "..." << std::endl;
+        std::cout << "DEBUG MEMORY CONSTRUCT: repositionMethod " << this->repositionMethod << "..." << std::endl;
+        std::cout << "DEBUG MEMORY CONSTRUCT: length           " << this->length << "..." << std::endl;
+        std::cout << "DEBUG MEMORY CONSTRUCT: shift            " << this->shift << "..." << std::endl;
+        std::cout << "DEBUG MEMORY CONSTRUCT: debug            " << this->debug << "..." << std::endl;
+        std::cout << "************************************* ..." << std::endl << std::endl;
     }
 }
 
@@ -43,7 +44,7 @@ int Memory::calcShift(){
     unsigned shift = 0; 
     unsigned temp = 0;
     
-    temp = this->sizepage;
+    temp = this->sizepage * 1024;
     while (temp>1) {
         temp = temp >> 1;
         shift++;
@@ -87,10 +88,10 @@ bool Memory::isFree(){
  *  @return {bool - True for free, False for full}
 */
 void Memory::add(int index, long int data, int time){
-    this->buffer[index].setTime(time);
-    this->buffer[index].setLastAccess(time);
-    this->buffer[index].setData(data);
-    this->buffer[index].setAddres(data);
+    this->buffer[index]->setTime(time);
+    this->buffer[index]->setLastAccess(time);
+    this->buffer[index]->setData(data);
+    this->buffer[index]->setAddres(data >> this->shift);
     
     // Case debug 
     this->debuging();
@@ -103,11 +104,11 @@ void Memory::add(int index, long int data, int time){
 */
 int Memory::lru(int time){
     int index = 0;
-    int timeElement = 0;
+    int timeElement = time;
 
     // Find index to last recent used
-    for(int i =0; i > this->numberPages; i++){
-        timeElement = this->buffer[i].getLastAccess();
+    for(int i =0; i < this->numberPages; i++){
+        timeElement = this->buffer[i]->getLastAccess();
 
         // Check if element time is less than current time and update the best time
         if(timeElement > time && timeElement != -1 ){
@@ -117,7 +118,6 @@ int Memory::lru(int time){
     }
     // Case debug 
     this->debuging();
-
     return index;  
 }
 
@@ -128,11 +128,11 @@ int Memory::lru(int time){
 */
 int Memory::fifo(int time){
     int index = 0;
-    int timeElement = 0;
+    int timeElement = time;
 
     // Find index to first insert
-    for(int i =0; i > this->numberPages; i++){
-        timeElement = this->buffer[i].getTime();
+    for(int i =0; i < this->numberPages; i++){
+        timeElement = this->buffer[i]->getTime();
 
         // Check if element time is less than current time and update the best time
         if(timeElement < time && timeElement != -1 ){
@@ -143,7 +143,6 @@ int Memory::fifo(int time){
 
     // Case debug 
     this->debuging();
-
     return index;    
 }
 
@@ -166,46 +165,34 @@ int Memory::random(){
  *  @return {bool - True on free memory, False on full memory}
 */
 bool Memory::write(long int data, int time){
-    int index = 0;
-    bool isNew = false;
+    int index = this->getComprimento();
+    bool isNew = true;
     
-    // Case current repostion method to write is lru
-    if(this->repositionMethod == "lru")
-        index = this->lru(time);
+    if(this->isFree() == false){
+        // Case current repostion method to write is lru
+        if(this->repositionMethod == "lru" || this->repositionMethod == "LRU")
+            index = this->lru(time);
 
-    // Case current repostion method to write is fifo
-    else if(this->repositionMethod == "fifo")
-        index = this->fifo(time);    
+        // Case current repostion method to write is fifo
+        else if(this->repositionMethod == "fifo" || this->repositionMethod == "FIFO")
+            index = this->fifo(time);    
 
-    // Case current repostion method to write is random
-    else if(this->repositionMethod == "random"){
-        index = this->random();
-
-        if(this->buffer[index].getData() != -1)
-            isNew = false;
+        // Case current repostion method to write is random
+        else if(this->repositionMethod == "random" || this->repositionMethod == "RANDOM")
+            index = this->random();
+        
+        isNew = false;
+    }else{
+        this->length++;
     }
-    
+
     // Add data in current method index
     this->add(index, data, time);
+    
+    // Case debug 
+    this->debuging();
 
-    // Checking space in memory
-    if(this->isFree() && isNew != false){
-        this->length++;
-        
-        // Case debug 
-        this->debuging();
-
-        return true;
-    }
-    /*else if(this->isFree() && isNew == false){
-        return true;
-    }*/
-    else{
-        // Case debug 
-        this->debuging();
-
-        return false;
-    }
+    return isNew;
 }
 
 /*
@@ -217,9 +204,18 @@ bool Memory::write(long int data, int time){
 bool Memory::read(long int data, int time){
     long int addres =  data >> this->shift;
 
-    for(int i =0; i > this->numberPages; i++){
-        if(this->buffer[i].getAddres() == addres){
-            this->buffer[i].setLastAccess(time);
+    for(int i =0; i < this->numberPages; i++){
+        if(this->debug == 1){
+            std::cout << "    DEBUG READ: index            " << i           << "..." << std::endl;
+            std::cout << "    DEBUG READ: addres            " << addres      << "..." << std::endl;
+            std::cout << "    DEBUG READ: addres buffer            " << this->buffer[i]->getAddres() << "..." << std::endl;
+            std::cout << "    DEBUG READ: addres buffer            " << this->buffer[i]->getData() << "..." << std::endl;
+            std::cout << "************************************* ..." << std::endl << std::endl;
+        }
+
+        // Check values
+        if(this->buffer[i]->getAddres() == addres){
+            this->buffer[i]->setLastAccess(time);
             return true;
         }
     }
@@ -240,6 +236,6 @@ void Memory::debuging(){
         std::cout << "DEBUG MEMORY: length           " << this->length << "..." << std::endl;
         std::cout << "DEBUG MEMORY: shift            " << this->shift << "..." << std::endl;
         std::cout << "DEBUG MEMORY: debug            " << this->debug << "..." << std::endl;
-        std::cout << "************************************* ..." << std::endl;
+        std::cout << "************************************* ..." << std::endl << std::endl;
     }
 }

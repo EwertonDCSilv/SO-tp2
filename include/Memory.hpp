@@ -16,7 +16,7 @@ class Memory{
         long int shift;
         int debug;
         std::string repositionMethod;
-        std::vector<Elemento> buffer;
+        std::vector<Elemento*> buffer;
 
     public:
         Memory( std::string repositionMethod, int sizepage, int sizeMemory, int debug);
