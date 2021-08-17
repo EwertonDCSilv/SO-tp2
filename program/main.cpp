@@ -18,8 +18,6 @@ int main(int argc, char** argv){
     int writePages = 0;
     int time = 0;
     int debug = 0;
-
-    // Talvez ...
     int fault = 0;
     int hits = 0;
     int misses = 0;
@@ -93,7 +91,7 @@ int main(int argc, char** argv){
                     if(memory.write(data, time) == false){
                         fault++;
                     }
-                        
+                    misses++;
                 }
                 readPages++; 
             }
